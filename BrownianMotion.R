@@ -1,3 +1,5 @@
+library(ggplot2)
+library(animint2)
 BrownianMotion <- function(n_balls, sigma, start_pos) {
   
   # Define a color palette based on number of balls
@@ -21,11 +23,11 @@ BrownianMotion <- function(n_balls, sigma, start_pos) {
     theme_bw()
   
   # Animate the plot
-  (viz.duration <- animint(ggplot_anim, duration = list(Step = 100)))
+  (viz.duration <- animint(ggplot_anim, duration = list(Step = 500),source="https://github.com/Vatsal-Rajput/Animint2Test",title="BrownianMotion"))
   
   # Set animation time
   viz.duration.time <- viz.duration
-  viz.duration.time$time <- list(variable = "Step", ms = 100)
+  viz.duration.time$time <- list(variable = "Step", ms = 500)
   
   # Return the animated plot
   return(viz.duration.time)
@@ -49,7 +51,7 @@ generate_data <- function(i, sigma, start_pos) {
 # Example usage
 # Set parameters
 n_balls <- 5
-sigma <- 0.1
+sigma <- 0.5
 start_pos <- c(0, 0)
 
 # Create and display the animation

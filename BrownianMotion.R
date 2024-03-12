@@ -10,10 +10,17 @@ BrownianMotion <- function(n_balls, sigma, start_pos) {
   data_list <- lapply(seq(n_steps), generate_data, sigma = sigma, start_pos = start_pos)
   df <- do.call(rbind, data_list)
   ball <- rep(1:n_balls,each=100)
+  df <- cbind(df,ball)
   
   # Assign colors based on ball index (repeating pattern)
   ball_index <- rep(seq(1:n_balls), each = n_steps / n_balls)
   ball_colors <- colors[ball_index]
+  
+  #Making the starting point as origin
+  for(i in 1:n_balls-1){
+    df[1+i*100,2]=0
+    df[1+i*100,3]=0
+  }
   
   # Create the animation
   ggplot_anim <- ggplot(df, aes(x = X, y = Y, color = ball_colors,key=ball)) +
@@ -39,9 +46,11 @@ generate_data <- function(i, sigma, start_pos) {
   step <- rnorm(2, mean = 0, sd = sigma)
   # Update current position
   position <- start_pos + step
+  if(i%%100!=0)temp <- i%%100
+  else temp <- 1
   # Create data frame
   df <- data.frame(
-    Step = i%%100,
+    Step = temp,
     X = position[1],
     Y = position[2]
   )

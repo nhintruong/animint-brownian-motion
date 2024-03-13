@@ -1,5 +1,27 @@
 library(ggplot2)
 library(animint2)
+
+# Function to generate data for one animation frame 
+generate_data <- function(sigma, curr_pos){
+  # Simulate step using independent Gaussian noise for x and y
+  step <- rnorm(2, mean = 0, sd = sigma)
+  # Update current position
+  position <- curr_pos + step
+  return(c(position[1],position[2]))
+}
+
+sequence <- function(n) {
+  temp <- numeric(100 * n)
+  for (i in 1:(100 * n)) {
+    if (i %% 100 == 0) {
+      temp[i] <- 100
+    } else {
+      temp[i] <- i %% 100
+    }
+  }
+  return(temp)
+}
+
 BrownianMotion <- function(n_balls, sigma, start_pos) {
   
   # Define a color palette based on number of balls
@@ -7,11 +29,20 @@ BrownianMotion <- function(n_balls, sigma, start_pos) {
   
   # Generate data for animation
   n_steps <- 100 * n_balls
-  data_list <- lapply(seq(n_steps), generate_data, sigma = sigma, start_pos = start_pos)
-  df <- do.call(rbind, data_list)
+  df <- data.frame(X=0,Y=0)
+  
+  curr_pos <- start_pos
+  for(i in 2:n_steps){
+    if(i%%100==1)curr_pos <- start_pos
+    temp <- generate_data(sigma,curr_pos)
+    curr_pos <- temp
+    df <- rbind(df,temp)
+  }
+  
+  Step <- rep(1:100,length.out=n_balls)
   ball <- rep(1:n_balls,each=100)
   df <- cbind(df,ball)
-  
+  df <- cbind(Step=sequence(n_balls),df)
   # Assign colors based on ball index (repeating pattern)
   ball_index <- rep(seq(1:n_balls), each = n_steps / n_balls)
   ball_colors <- colors[ball_index]
@@ -30,31 +61,14 @@ BrownianMotion <- function(n_balls, sigma, start_pos) {
     theme_bw()
   
   # Animate the plot
-  (viz.duration <- animint(ggplot_anim, duration = list(Step = 500),source="https://github.com/Vatsal-Rajput/Animint2Test",title="BrownianMotion"))
+  (viz.duration <- animint(ggplot_anim, duration = list(Step = 200),source="https://github.com/Vatsal-Rajput/Animint2Test",title="BrownianMotion"))
   
   # Set animation time
   viz.duration.time <- viz.duration
-  viz.duration.time$time <- list(variable = "Step", ms = 500)
+  viz.duration.time$time <- list(variable = "Step", ms = 200)
   
   # Return the animated plot
   return(viz.duration.time)
-}
-
-# Function to generate data for one animation frame 
-generate_data <- function(i, sigma, start_pos) {
-  # Simulate step using independent Gaussian noise for x and y
-  step <- rnorm(2, mean = 0, sd = sigma)
-  # Update current position
-  position <- start_pos + step
-  if(i%%100!=0)temp <- i%%100
-  else temp <- 1
-  # Create data frame
-  df <- data.frame(
-    Step = temp,
-    X = position[1],
-    Y = position[2]
-  )
-  return(df)
 }
 
 # Example usage
